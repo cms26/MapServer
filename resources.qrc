@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>map/MapOverlay.qml</file>
+        <file>resources/bootstrap-icons/zoom-in.svg</file>
+        <file>resources/bootstrap-icons/zoom-out.svg</file>
+        <file>map/MapItem.qml</file>
+        <file>map/MapItemHistory.qml</file>
+    </qresource>
+</RCC>

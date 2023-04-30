@@ -1,0 +1,61 @@
+#ifndef MAPITEM_H
+#define MAPITEM_H
+
+#include "mapitemfwd.h"
+
+#include <QString>
+#include <QGeoCoordinate>
+#include <QColor>
+#include <QString>
+#include <QObject>
+
+class QJsonObject;
+
+class MapItem : public QObject
+{
+    Q_OBJECT
+public:
+    explicit MapItem(QObject* parent = nullptr): QObject(parent) {}
+
+    void fromJson(const QJsonObject&);
+    QJsonObject toJson() const;
+
+    const QGeoCoordinate& lastCoordinate() const {return mLocations.back();}
+    const QString& id() const {return mMapId;}
+    const std::optional<QColor>& color() const {return mColor;}
+    const QList<QGeoCoordinate>& coordinates() const {return mLocations;}
+    const std::optional<QString>& description() const {return mDescription;}
+
+    void setlimitedCoordinate(bool oneCoordinate) {mLimitedCoordinate = oneCoordinate;}
+    void addCoordinates(const QList<QGeoCoordinate>& data);
+    void setId(const QString& data) {mMapId = data;}
+    void setColor(const QColor& data);
+    void setDescription(const QString&);
+    void mergeItem(const MapItemPtr&);
+
+signals:
+    void coordinateChanged(const QString&);
+    void colorChanged(const QString&);
+    void descriptionChanged(const QString&);
+
+private:
+
+    const static QString MapId; // JSON field
+    QString mMapId;
+
+    const static QString MapHistory; // JSON field
+    const static QString MapLatitude; // JSON field
+    const static QString MapLongitude; // JSON field
+    const static QString MapAltitude; // JSON field
+    QList<QGeoCoordinate> mLocations;
+
+    const static QString MapColor; // JSON field
+    std::optional<QColor> mColor;
+
+    const static QString MapDescription; // JSON field
+    std::optional<QString> mDescription;
+
+    bool mLimitedCoordinate{false}; // only keep the last coordinate (item does not move)
+};
+
+#endif // MAPITEM_H
