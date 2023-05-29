@@ -1,10 +1,15 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include "mapitemfwd.h"
+
 #include <QWidget>
+#include <QGeoCoordinate>
+
 
 class MapItemsModel;
 class QQuickView;
+
 
 class Map : public QWidget
 {
@@ -15,9 +20,18 @@ public:
 
     MapItemsModel* model() const {return mModel;}
 
+signals:
+    void onUpdateMouseLocation(QGeoCoordinate);
+    void onUpdateSelectedItem(const MapItemPtr&);
+
 public slots:
     void onZoomIn();
     void onZoomOut();
+    void onMouseLocationChanged(QVariant);
+
+private slots:
+    void onSelectedItemChanged(const MapItemPtr&);
+
 
  private:
     int zoomLevel();

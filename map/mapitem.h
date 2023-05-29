@@ -14,6 +14,7 @@ class QJsonObject;
 class MapItem : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool mSelected READ selected WRITE setSelected NOTIFY selectedChanged)
 public:
     explicit MapItem(QObject* parent = nullptr): QObject(parent) {}
 
@@ -33,10 +34,14 @@ public:
     void setDescription(const QString&);
     void mergeItem(const MapItemPtr&);
 
+    bool selected() const {return mSelected;}
+    void setSelected(const bool selected);
+
 signals:
     void coordinateChanged(const QString&);
-    void colorChanged(const QString&);
+    void mapItemColorChanged(const QString&);
     void descriptionChanged(const QString&);
+    void selectedChanged(const QString&);
 
 private:
 
@@ -56,6 +61,8 @@ private:
     std::optional<QString> mDescription;
 
     bool mLimitedCoordinate{false}; // only keep the last coordinate (item does not move)
+
+    bool mSelected{false};  // if the item has been selected by the operator
 };
 
 #endif // MAPITEM_H

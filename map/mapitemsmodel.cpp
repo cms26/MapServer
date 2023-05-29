@@ -4,7 +4,7 @@
 
 #include <QJsonArray>
 
-const QColor DefaultColor = Qt::red;
+const QColor MapItemsModel::DefaultColor = Qt::red;
 
 const QHash<int, QByteArray> MapItemsModel::roles = {
     {MapItemsModel::positionRole, "rolePosition"},
@@ -12,6 +12,7 @@ const QHash<int, QByteArray> MapItemsModel::roles = {
     {MapItemsModel::idRole, "roleId"},
     {MapItemsModel::pathRole, "rolePath"},
     {MapItemsModel::descriptionRole, "roleDescription"},
+    {MapItemsModel::selectedRole, "roleSelected"},
 };
 
 QVariantList toList(QList<QGeoCoordinate> data) {
@@ -39,10 +40,12 @@ void MapItemsModel::addMapItem(const QList<MapItemPtr>& newItems) {
         // new item
         connect(newItem.get(), &MapItem::coordinateChanged,
                 this, &MapItemsModel::coordinateChanged);
-        connect(newItem.get(), &MapItem::colorChanged,
+        connect(newItem.get(), &MapItem::mapItemColorChanged,
                 this, &MapItemsModel::colorChanged);
         connect(newItem.get(), &MapItem::descriptionChanged,
                 this, &MapItemsModel::descriptionChanged);
+        connect(newItem.get(), &MapItem::selectedChanged,
+                this, &MapItemsModel::selectionChanged);
 
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
         mMapItems.append(newItem);
@@ -73,9 +76,25 @@ QVariant MapItemsModel::data(const QModelIndex &index, int role) const {
             return toList(mMapItems[index.row()]->coordinates());
         case MapItemsModel::descriptionRole:
             return QVariant::fromValue(mMapItems[index.row()]->description() ? mMapItems[index.row()]->description().value() : "");
+        case MapItemsModel::selectedRole:
+            return QVariant::fromValue(mMapItems[index.row()]->selected());
         default:
             return QVariant();
     }
+}
+
+
+bool MapItemsModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (index.row() < 0 || index.row() >= rowCount()) {
+            return false;
+    }
+
+    switch(role) {
+        case MapItemsModel::selectedRole:
+            updatedSelected(mMapItems[index.row()]->id(), value.toBool());
+    }
+
+    return true;
 }
 
 QHash<int, QByteArray> MapItemsModel::roleNames() const {
@@ -110,10 +129,34 @@ void MapItemsModel::descriptionChanged(const QString& id) {
                      {MapItemsModel::descriptionRole});
 }
 
+void MapItemsModel::selectionChanged(const QString& id) {
+    const auto& index = idIndex(id);
+    emit dataChanged(createIndex(index, 0), createIndex(index, 0),
+                     {MapItemsModel::selectedRole});
+}
+
 QJsonArray MapItemsModel::mapItems() const {
     QJsonArray newData;
     for(const auto& item: mMapItems) {
         newData << item->toJson();
     }
     return newData;
+}
+
+void MapItemsModel::updatedSelected(const QString& id, const bool selected) {
+    for(const auto& item: mMapItems) {
+        const auto& index = idIndex(id);
+        const bool selectedState = (item->id() == id) ? selected : false;
+        item->setSelected(selectedState);
+    }
+
+    const auto& iter = std::find_if(mMapItems.begin(), mMapItems.end(),
+                                    [](const auto& item) {return item->selected();});
+    if(iter != mMapItems.end()) {
+        emit onUpdateSelectedItem(*iter);
+        return;
+    }
+
+    // didn't find any active - clear out the current display data
+    emit onUpdateSelectedItem(nullptr);
 }

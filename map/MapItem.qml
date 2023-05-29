@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtLocation
 
+
 MapQuickItem  {
     id: mapItem
     coordinate: rolePosition
@@ -10,19 +11,20 @@ MapQuickItem  {
 
     sourceItem: Rectangle {
         id: circleId
-        width: 20
-        height: 20
-        radius: 10.0
+        width: roleSelected ? 25 : 20
+        height: roleSelected ? 25 : 20
+        radius: roleSelected ? 15 : 10
         color: roleColor
-
         ToolTip.text: roleDescription
         ToolTip.visible: mouseId.containsMouse && roleDescription !== ''
         MouseArea {
             id: mouseId
             anchors.fill: parent
             hoverEnabled: true
+            onClicked: () => roleSelected = !roleSelected;
         }
+        border.color: roleSelected ? Qt.darker(roleColor)  : 'transparent'
+        border.width:  roleSelected ? 5 : 0
     }
-
 }
 

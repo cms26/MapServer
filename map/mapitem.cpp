@@ -84,7 +84,7 @@ void MapItem::addCoordinates(const QList<QGeoCoordinate>& data) {
 void MapItem::setColor(const QColor& data) {
     if(mColor != data) {
         mColor = data;
-        emit colorChanged(mMapId);
+        emit mapItemColorChanged(mMapId);
     }
 }
 
@@ -106,5 +106,12 @@ void MapItem::mergeItem(const MapItemPtr& otherData) {
 
     if(!otherData->coordinates().isEmpty()) {
         addCoordinates(otherData->coordinates());
+    }
+}
+
+void MapItem::setSelected(const bool data) {
+    if(mSelected != data) {
+        mSelected=data;
+        emit selectedChanged(mMapId);
     }
 }

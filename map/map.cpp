@@ -1,6 +1,5 @@
 #include "map.h"
 #include "mapitemsmodel.h"
-#include "mapitem.h"
 
 #include <QQuickWidget>
 #include <QVBoxLayout>
@@ -17,26 +16,15 @@ Map::Map(QWidget *parent) : QWidget(parent)
     QWidget* container = QWidget::createWindowContainer(mQmlView);
     // needed before setSource is called
     mQmlView->rootContext()->setContextProperty("mapItemsModel", mModel);
-    mQmlView->setSource(QUrl("qrc:/map/MapOverlay.qml"));
+    mQmlView->setSource(QUrl("qrc:/map/MapOverlay.qml"));;
+
+    connect(mQmlView->rootObject(), SIGNAL(mousePositionChangedEvent(QVariant)),
+                        this, SLOT(onMouseLocationChanged(QVariant)));
+
+    connect(mModel, &MapItemsModel::onUpdateSelectedItem, this, &Map::onSelectedItemChanged);
 
     setLayout(new QVBoxLayout);
     layout()->addWidget(container);
-
-//    MapItemPtr newItem(new MapItem());
-//    newItem->addCoordinates({QGeoCoordinate(39.4227, -77.4187, 546)});
-//    newItem->addCoordinates({QGeoCoordinate(39.45, -77.45, 555)});
-//    newItem->setColor(QColorConstants::Svg::blueviolet);
-//    mModel->addMapItem(newItem);
-
-//    QTimer::singleShot(5000, [&, newItem]() {
-//        MapItemPtr testItem(new MapItem());
-//        testItem->addCoordinates({QGeoCoordinate(39.55, -77.55, 546)});
-//        testItem->addCoordinates({QGeoCoordinate(39.99, -77.8, 555)});
-//        testItem->setColor(QColorConstants::Svg::azure);
-//        mModel->addMapItem(testItem);
-
-//        newItem->addCoordinates({QGeoCoordinate(39.99, -77.8, 555)});
-//    });
 }
 
 Map::~Map() {
@@ -66,3 +54,10 @@ void Map::onZoomOut() {
                                         std::max<int>(minZoomLevel(), zoomLevel() - 1));
 }
 
+void Map::onMouseLocationChanged(QVariant loc) {
+    emit onUpdateMouseLocation(loc.value<QGeoCoordinate>());
+}
+
+void Map::onSelectedItemChanged(const MapItemPtr& data) {
+    emit onUpdateSelectedItem(data);
+}
