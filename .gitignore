@@ -1,2 +1,4 @@
 CMakeLists.txt.user
 CMakeCache.txt
+.idea
+__pycache__

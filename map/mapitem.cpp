@@ -7,6 +7,7 @@ const QString MapItem::MapId = QStringLiteral("id");
 const QString MapItem::MapLatitude = QStringLiteral("latitude_deg"); //deg
 const QString MapItem::MapLongitude = QStringLiteral("longitude_deg"); // deg
 const QString MapItem::MapAltitude = QStringLiteral("altitude_m"); // meters
+const QString MapItem::MapTrackTimeUtc = QStringLiteral("time_utc"); // time utc string ISO 8601
 const QString MapItem::MapColor = QStringLiteral("color"); // hex string, aka #34ebbd
 const QString MapItem::MapHistory = QStringLiteral("location_history");
 const QString MapItem::MapDescription = QStringLiteral("description");
@@ -34,8 +35,16 @@ void MapItem::fromJson(const QJsonObject& obj) {
             trackItem.setAltitude(trackObj[MapAltitude].toDouble());
         }
 
+        QGeoPositionInfo position;
+        position.setCoordinate(trackItem);
+
+        if(trackObj.contains(MapTrackTimeUtc)) {
+            const auto& timeObj = QDateTime::fromString(trackObj[MapTrackTimeUtc].toString(), Qt::ISODate);
+            position.setTimestamp(timeObj);
+        }
+
         if(trackItem.isValid()) {
-            mLocations.push_back(trackItem);
+            mLocations.push_back(position);
         }
     }
 
@@ -51,9 +60,9 @@ QJsonObject MapItem::toJson() const {
     QJsonArray trackObjs;
     for(const auto& track: mLocations) {
         QJsonObject trackObj;
-        trackObj[MapLatitude] = track.latitude();
-        trackObj[MapLongitude] = track.longitude();
-        trackObj[MapAltitude] = track.altitude();
+        trackObj[MapLatitude] = track.coordinate().latitude();
+        trackObj[MapLongitude] = track.coordinate().longitude();
+        trackObj[MapAltitude] = track.coordinate().altitude();
         trackObjs.append(trackObj);
     }
 
@@ -70,7 +79,7 @@ QJsonObject MapItem::toJson() const {
     return obj;
 }
 
-void MapItem::addCoordinates(const QList<QGeoCoordinate>& data) {
+void MapItem::addCoordinates(const QList<QGeoPositionInfo>& data) {
     if(!data.isEmpty()) {
         if(mLimitedCoordinate) {
             mLocations = {data.last()};

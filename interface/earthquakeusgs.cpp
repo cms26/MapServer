@@ -51,6 +51,7 @@ void EarthQuakeUsgs::onItems(const QJsonArray& features) {
     QList<MapItemPtr> newItems;
     for (const auto& f: features) {
         MapItemPtr newItem(new MapItem);
+        QGeoPositionInfo info;
         newItem->setlimitedCoordinate(true); // only use latest location
         const auto& feature = f.toObject();
         if(feature.contains("geometry") && feature["geometry"].isObject()) {
@@ -60,7 +61,7 @@ void EarthQuakeUsgs::onItems(const QJsonArray& features) {
                 if(location.size() > 1) {
                     const auto& lon = location[0].toDouble();
                     const auto& lat = location[1].toDouble();
-                    newItem->addCoordinates({QGeoCoordinate(lat, lon)});
+                    info.setCoordinate({lat, lon});
                 }
             }
         }
@@ -83,15 +84,20 @@ void EarthQuakeUsgs::onItems(const QJsonArray& features) {
                 timeZon = prop["tz"].toVariant().toLongLong();
             };
 
+            QDateTime time = QDateTime::currentDateTimeUtc();
             if(prop.contains("updated")) {
-                updateTime(prop["updated"].toVariant().toLongLong(), timeZon, desc);
+                updateTime(prop["updated"].toVariant().toLongLong(), timeZon, desc, time);
             } else if (prop.contains("time")) {
-                updateTime(prop["time"].toVariant().toLongLong(), timeZon, desc);
+                updateTime(prop["time"].toVariant().toLongLong(), timeZon, desc, time);
             }
 
             desc += "</html>";
             newItem->setDescription(desc);
+
+            info.setTimestamp(time);
         }
+
+        newItem->addCoordinates({info});
 
         if(!newItem->coordinates().empty()) {
             newItems << newItem;
@@ -100,8 +106,8 @@ void EarthQuakeUsgs::onItems(const QJsonArray& features) {
     emit updateMapItem(newItems);
 }
 
-void EarthQuakeUsgs::updateTime(const qlonglong& timeMs, const qlonglong& tz, QString& desc) {
+void EarthQuakeUsgs::updateTime(const qlonglong& timeMs, const qlonglong& tz, QString& desc, QDateTime& time) {
     // ms since unix epoch
-    const auto& time = QDateTime::fromMSecsSinceEpoch(timeMs, QTimeZone(tz));
+    time = QDateTime::fromMSecsSinceEpoch(timeMs, QTimeZone(tz));
     desc += "<br>" + time.toString();
 }

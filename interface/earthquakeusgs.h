@@ -29,7 +29,7 @@ private:
     const QString UsgsId = "UsgsId-";
 
     void onItems(const QJsonArray&);
-    void updateTime(const qlonglong&,const qlonglong&, QString&);
+    void updateTime(const qlonglong&,const qlonglong&, QString&,QDateTime&);
 
     QTimer* mPoll{nullptr};
     QNetworkAccessManager* mMgr{nullptr};

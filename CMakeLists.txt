@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets HttpServer Location Quick Gui QuickWidgets QuickControls2)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets HttpServer Location Quick Gui QuickWidgets QuickControls2)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets HttpServer Location Quick Gui QuickWidgets QuickControls2 Charts)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets HttpServer Location Quick Gui QuickWidgets QuickControls2 Charts)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -30,6 +30,11 @@ set(PROJECT_SOURCES
         map/mapitemsmodel.h
         interface/earthquakeusgs.cpp
         interface/earthquakeusgs.h
+        metadata/chartdisplay.cpp
+        metadata/chartdisplay.h
+        metadata/metadatadisplay.cpp
+        metadata/metadatadisplay.h
+        metadata/metadatadisplay.ui
 )
 
 set(RESOURCE_FILES resources.qrc)
@@ -52,6 +57,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/map
         ${CMAKE_CURRENT_SOURCE_DIR}/interface
+        ${CMAKE_CURRENT_SOURCE_DIR}/metadata
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET MapServer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -73,13 +79,13 @@ else()
 endif()
 
 target_link_libraries(MapServer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets 
-	Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::HttpServer
     Qt${QT_VERSION_MAJOR}::Location
     Qt${QT_VERSION_MAJOR}::Quick
     Qt${QT_VERSION_MAJOR}::QuickWidgets
-   # Qt${QT_VERSION_MAJOR}::Svg,
-    Qt${QT_VERSION_MAJOR}::QuickControls2)
+    Qt${QT_VERSION_MAJOR}::QuickControls2
+    Qt${QT_VERSION_MAJOR}::Charts)
 
 set_target_properties(MapServer PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

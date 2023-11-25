@@ -14,7 +14,8 @@ public:
     enum struct IconName {
         ZoomIn,
         ZoomOut,
-        Globe
+        Globe,
+        MetaData,
     };
 
     QIcon getIcon(const IconName& name) {return mIcons[name];}

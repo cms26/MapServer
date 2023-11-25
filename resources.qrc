@@ -6,5 +6,6 @@
         <file>map/MapItem.qml</file>
         <file>map/MapItemHistory.qml</file>
         <file>resources/bootstrap-icons/globe.svg</file>
+        <file>resources/bootstrap-icons/postcard-fill.svg</file>
     </qresource>
 </RCC>

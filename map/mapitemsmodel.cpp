@@ -15,11 +15,11 @@ const QHash<int, QByteArray> MapItemsModel::roles = {
     {MapItemsModel::selectedRole, "roleSelected"},
 };
 
-QVariantList toList(QList<QGeoCoordinate> data) {
+QVariantList toList(QList<QGeoPositionInfo> data) {
     QVariantList list;
     list.reserve(data.size());
     for (const auto& d: data) {
-        list.append(QVariant::fromValue(d));
+        list.append(QVariant::fromValue(d.coordinate()));
     }
     return list;
 }
@@ -67,7 +67,7 @@ QVariant MapItemsModel::data(const QModelIndex &index, int role) const {
 
     switch(role) {
         case MapItemsModel::positionRole:
-            return QVariant::fromValue(mMapItems[index.row()]->lastCoordinate());
+            return QVariant::fromValue(mMapItems[index.row()]->lastCoordinate().coordinate());
         case MapItemsModel::colorRole:
             return QVariant::fromValue(mMapItems[index.row()]->color() ? mMapItems[index.row()]->color().value() : DefaultColor);
         case MapItemsModel::idRole:

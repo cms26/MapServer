@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "metadatadisplay.h"
 #include "mapitemfwd.h"
 
 #include <QMainWindow>
@@ -10,6 +11,8 @@ class HttpServer;
 class QToolBar;
 class EarthQuakeUsgs;
 class QLabel;
+class MetadataDisplay;
+class QDockWidget;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,6 +29,7 @@ public:
 private slots:
     void onUpdateMouseLocation(QGeoCoordinate);
     void onUpdateSelectedItem(const MapItemPtr&);
+    void toggleMetaData();
 
 private:
     void setupStatusBar();
@@ -39,6 +43,9 @@ private:
 
     QLabel* mMouseLocationLabel{nullptr};
     QLabel* mSelectedMapItemInfo{nullptr};
+
+    QDockWidget* mDockMetaData{nullptr};
+    MetadataDisplay* mMetadataDisplay{nullptr};
 
 };
 #endif // MAINWINDOW_H

@@ -4,7 +4,7 @@
 #include "mapitemfwd.h"
 
 #include <QString>
-#include <QGeoCoordinate>
+#include <QGeoPositionInfo>
 #include <QColor>
 #include <QString>
 #include <QObject>
@@ -21,14 +21,14 @@ public:
     void fromJson(const QJsonObject&);
     QJsonObject toJson() const;
 
-    const QGeoCoordinate& lastCoordinate() const {return mLocations.back();}
+    const QGeoPositionInfo& lastCoordinate() const {return mLocations.back();}
     const QString& id() const {return mMapId;}
     const std::optional<QColor>& color() const {return mColor;}
-    const QList<QGeoCoordinate>& coordinates() const {return mLocations;}
+    const QList<QGeoPositionInfo>& coordinates() const {return mLocations;}
     const std::optional<QString>& description() const {return mDescription;}
 
     void setlimitedCoordinate(bool oneCoordinate) {mLimitedCoordinate = oneCoordinate;}
-    void addCoordinates(const QList<QGeoCoordinate>& data);
+    void addCoordinates(const QList<QGeoPositionInfo>& data);
     void setId(const QString& data) {mMapId = data;}
     void setColor(const QColor& data);
     void setDescription(const QString&);
@@ -52,7 +52,8 @@ private:
     const static QString MapLatitude; // JSON field
     const static QString MapLongitude; // JSON field
     const static QString MapAltitude; // JSON field
-    QList<QGeoCoordinate> mLocations;
+    const static QString MapTrackTimeUtc; // JSON field
+    QList<QGeoPositionInfo> mLocations;
 
     const static QString MapColor; // JSON field
     std::optional<QColor> mColor;

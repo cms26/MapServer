@@ -14,6 +14,8 @@
 #include <QLabel>
 #include <QStatusBar>
 #include <QGridLayout>
+#include <QDockWidget>
+#include <QHBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -28,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent)
                         "Zoom In", ui->centralwidget, &Map::onZoomIn);
     mToolBar->addAction(IconLoader::getInstance().getIcon(IconLoader::IconName::ZoomOut),
                         "Zoom Out", ui->centralwidget, &Map::onZoomOut);
+    auto metaAction = mToolBar->addAction(IconLoader::getInstance().getIcon(IconLoader::IconName::MetaData),
+                        "Meta Data", this, &MainWindow::toggleMetaData);
+    metaAction->setCheckable(true);
 
     setupStatusBar();
 
@@ -37,6 +42,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     mEarthQuakeUsgs = new EarthQuakeUsgs(this);
     connect(mEarthQuakeUsgs, &EarthQuakeUsgs::updateMapItem, ui->centralwidget->model(), &MapItemsModel::addMapItem);
+
+    mMetadataDisplay = new MetadataDisplay(this);
+
+    mDockMetaData = new QDockWidget(tr("chart"), this);
+    mDockMetaData->setAllowedAreas( Qt::NoDockWidgetArea );
+    mDockMetaData->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    mDockMetaData->setWidget(mMetadataDisplay);
+    mDockMetaData->setHidden(true);
+    addDockWidget(Qt::BottomDockWidgetArea, mDockMetaData);
 }
 
 MainWindow::~MainWindow()
@@ -70,4 +84,10 @@ void MainWindow::onUpdateSelectedItem(const MapItemPtr& selectedName) {
     } else {
         mSelectedMapItemInfo->setText("");
     }
+
+    mMetadataDisplay->setMetaItem(selectedName);
+}
+
+void MainWindow::toggleMetaData() {
+    mDockMetaData->setHidden(!mDockMetaData->isHidden());
 }
